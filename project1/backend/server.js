@@ -15,10 +15,6 @@ app.use(express.json())
  
 //ROUTES IN userRoutes ARE ACCESSIBLE AT /api/v1/user
 app.use("/api/v1/user",userRoutes)
-//PROTECTED ROUTE (ONLY AUTHENTICATED USERS CAN ACCESS)
-app.use("/api/v1/protected",verifyToken,(req,res)=>{
-    res.json({message:"Protected route",user:req.user})
-})
 
 
 mongoose.connect(process.env.MONGO_URL)
