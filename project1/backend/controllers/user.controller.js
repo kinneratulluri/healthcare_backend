@@ -1,23 +1,30 @@
 
 import User from "../models/userModel.js";
 import bcrypt from "bcrypt";
-console.log("hi")
+import { userService,compareService } from "../services/users.service.js";
+import jwt from "jsonwebtoken"
 //USER SIGNUP FUNCTION
+const SECRET_KEY=process.env.SECRET_KEY
 const userSignUp = async(req,res)=>{
     try{
-        console.log("hi")
+        
         //FETCH EMAIL,PASSWORD FROM REQUEST BODY
         const {email,password}=req.body
-        console.log(req.body)
+        
         //HASH THE PASSWORDS BEFORE STORING IT IN DATABASE
-        const hashedPassword= await bcrypt.hash(password,12)
+        const hashedPassword= await userService(password)
         //CREATE A NEW USER WITH HASHED PASSWORD
-        const newData= await User.create({
+        const newUser= await User.create({
            email,
            password:hashedPassword
         })
-        //SEND A SUCCESS RESPONSE
-        res.status(201).json(newData)
+        //GENERATE JWT TOKEN
+        const token=jwt.sign(
+            {id:newUser._id,email: newUser.email}, 
+            process.env.SECRET_KEY, 
+            { expiresIn: "1h" })
+        //SEND A SUCCESS RESPONSE WITH TOKEN
+        res.status(201).json({ message:"user created successfully",user: newUser, token })
     }
     catch(error){
         //HANDLE ERRORS AND SEND A RESPONSE WITH ERROR MESSAGE
@@ -36,11 +43,12 @@ const userLogin= async(req,res)=>{
          res.status(404).json({error:"user not found"})
        }
        //COMPARE THE PROVIDED PASSWORD WITH THE HASHED PASSWORD IN DATABASE
-        const match=await bcrypt.compare(password,user.password)
+        const match=await compareService(password,user.password)
         if(!match){
          res.status(400).json({error:"incorrect password"})
      }
-        res.status(200).json({error:"successfully login"})
+     const token=jwt.sign({id:user._id,email: user.email}, process.env.SECRET_KEY, { expiresIn: "1h" })
+        res.status(200).json({message:"successfully login",token})
     }
     catch(error){
         res.status(400).json({error:error.message})
