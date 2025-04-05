@@ -3,6 +3,7 @@ import express from "express";
 import dotenv from "dotenv";
 import userRoutes from "./routes/user.route.js"
 import doctorRoutes from "./routes/doctor.route.js"
+import patientRoutes from "./routes/patient.route.js"
 //LOAD VARIABLES FROM .env FILE INTO process.env
 dotenv.config();
 
@@ -17,6 +18,7 @@ app.use("/api/v1/user",userRoutes)
 
 app.use("/api/v1/doctor",doctorRoutes)
 
+app.use("/api/v1/patient",patientRoutes)
 
 mongoose.connect(process.env.MONGO_URL)
 //HANDELS SUCESSFULL CONNECTION TO MONGODB

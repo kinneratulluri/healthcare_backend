@@ -29,6 +29,26 @@ export const doctorValidation=z.object(
     }
 )
 
+export const patientValidation=z.object(
+    {
+        name: z.string(),
+        email: z.string().email(),
+        password: z.string().min(8),
+        gender: z.enum(["male", "female", "other"]),
+        age: z.number(),
+        contactNumber: z.string().length(10),
+        medicalIssue:z.string(),
+        appointments: z.array(z.object({
+            patientId: z.string(),
+            doctorName:z.string(),
+            doctorId:z.string(),
+            date:z.string(),
+            timeSlot:z.string(),
+            timeSloId:z.string()
+        })).optional()
+    }
+)
+
 export const parsedValidation = (schema,data)=>{
     const parsed = schema.safeParse(data)
     if (!parsed.success) {

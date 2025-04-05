@@ -30,7 +30,31 @@ const patientSchema= new mongoose.Schema({
     medicalIssue:{
         type: String,
         required: true
-    }
+    },
+    appointments:[
+        {
+            patientId:{
+                type:String
+            },
+            doctorName:{
+                type:String,
+                required:true
+            },
+            doctorId:{
+                type:String,
+                required:true
+            },
+            date:{
+                type:String,required:true
+            },
+            timeSlot:{
+                type:String,required:true
+            },
+            timeSlotId:{
+                type:String,required:true
+            }
+        }
+    ]
 },{timestamps:true})
 
 const Patient =mongoose.model('patient',patientSchema)
