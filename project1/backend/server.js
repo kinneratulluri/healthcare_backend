@@ -2,8 +2,7 @@ import mongoose from "mongoose";
 import express from "express";
 import dotenv from "dotenv";
 import userRoutes from "./routes/user.route.js"
-import verifyToken from "./middlewares/authMiddleware.js";
-
+import doctorRoutes from "./routes/doctor.route.js"
 //LOAD VARIABLES FROM .env FILE INTO process.env
 dotenv.config();
 
@@ -15,6 +14,8 @@ app.use(express.json())
  
 //ROUTES IN userRoutes ARE ACCESSIBLE AT /api/v1/user
 app.use("/api/v1/user",userRoutes)
+
+app.use("/api/v1/doctor",doctorRoutes)
 
 
 mongoose.connect(process.env.MONGO_URL)

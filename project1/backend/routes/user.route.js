@@ -1,10 +1,10 @@
 import express from "express";
 
-import {userSignUp,userLogin} from "../controllers/user.controller.js"
-import verifyToken from "../middlewares/authMiddleware.js";
+import {userSignUp,userLogin,userProfile} from "../controllers/user.controller.js"
+import isUser from "../middlewares/authMiddleware.js";
 
 //CREATE EXPRESS ROUTER (GROUPING ALL RELATED ROUTES TOGETHER)
-export const router=express.Router();
+const router=express.Router();
 
 
 //ROUTE FOR USER SIGNUP
@@ -13,9 +13,7 @@ router.post("/signup", userSignUp);
 //ROUTE FOR USER LOGIN
 router.post("/login",userLogin)
 
-router.get("/protected",verifyToken,(req,res)=>{
-    res.json({message:"protected route",user:req.user})
-})
+router.get("/profile",isUser,userProfile)
 
 
 export default router;

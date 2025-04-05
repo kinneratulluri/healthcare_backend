@@ -9,6 +9,11 @@ const userSchema= new mongoose.Schema({
     password : {
         type: String,// DATATYPE IS STRING
         required: true// ENSURES PASSWORD IS MANDATORY
+    },
+    role:{
+        type: String,
+        enum:['doctor','patient','admin'],
+        required:true
     }
 })
 //CREATE NEW MODEL USING THE SCHEMA

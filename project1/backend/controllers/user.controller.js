@@ -1,21 +1,30 @@
 
 import User from "../models/userModel.js";
-import bcrypt from "bcrypt";
+import {z} from "zod"
 import { userService,compareService } from "../services/users.service.js";
 import jwt from "jsonwebtoken"
+
+const userValidation = z.object(
+    {
+        email: z.string().email(),
+        password:z.string().min(8)
+    }
+)
 //USER SIGNUP FUNCTION
 const SECRET_KEY=process.env.SECRET_KEY
 const userSignUp = async(req,res)=>{
     try{
         
-        //FETCH EMAIL,PASSWORD FROM REQUEST BODY
-        const {email,password}=req.body
-        
+        const parsed = userValidation.safeParse(req.body)
+        console.log(parsed.error)
+        if(!parsed.success){
+            throw new Error(JSON.stringify(parsed.error.format()))
+        }
         //HASH THE PASSWORDS BEFORE STORING IT IN DATABASE
-        const hashedPassword= await userService(password)
+        const hashedPassword= await userService(parsed.password)
         //CREATE A NEW USER WITH HASHED PASSWORD
         const newUser= await User.create({
-           email,
+           email:parsed.email,
            password:hashedPassword
         })
         //GENERATE JWT TOKEN
@@ -55,4 +64,15 @@ const userLogin= async(req,res)=>{
     }
 }
 
-export  {userSignUp,userLogin}
+const userProfile= async(req,res)=>{
+    try{
+       const id=req.user.id
+       console.log(req.user.id)
+       const data= await User.findById(id)
+       res.status(200).json(data)
+    }
+    catch(error){
+        res.status(400).json({error:error.message})
+    }
+}
+export  {userSignUp,userLogin,userProfile}
