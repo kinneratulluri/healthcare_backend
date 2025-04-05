@@ -1,13 +1,13 @@
 import { mongoose } from "mongoose";
 import Doctor from "../models/doctorModel.js"
 import { userService, jwtService, compareService } from "../services/users.service.js"
-import { parsedValidation ,doctorValidation,availabilityValidation} from "../services/validation.service.js";
+import { parsedValidation, doctorValidation, availabilityValidation } from "../services/validation.service.js";
 
 //SIGNUP FUNCTION
 const doctorSignUp = async (req, res) => {
     try {
         //VALIDATE THE DATA AND FETCH
-        const parsed = parsedValidation(doctorValidation,req.body)
+        const parsed = parsedValidation(doctorValidation, req.body)
         const isEmail = await Doctor.findOne({ email: parsed.data.email })
         if (isEmail)
             return res.status(401).json({ message: "doctor already registered" })
@@ -38,7 +38,7 @@ const doctorSignUp = async (req, res) => {
 //LOGIN FUNCTION
 const doctorLogin = async (req, res) => {
     try {
-        const parsed = parsedValidation(doctorValidation,req.body)
+        const parsed = parsedValidation(doctorValidation, req.body)
         const user = await Doctor.findOne({ email: parsed.data.email })
         if (!user)
             return res.status(404).json({ error: "User not found" })
@@ -60,7 +60,7 @@ const addSlots = async (req, res) => {
     try {
         //EXTRACT ID FROM REQUEST
         const doctorid = req.doctor.id
-        const parsed = parsedValidation(availabilityValidation,req.body)
+        const parsed = parsedValidation(availabilityValidation, req.body)
         const incomingSlots = parsed.availability; // Extract validated availability data
         if (!incomingSlots || !Array.isArray(incomingSlots) || incomingSlots.length === 0) {
             return res.status(400).json({
@@ -122,5 +122,6 @@ const addSlots = async (req, res) => {
         res.status(400).json({ error: error.message })
     }
 }
+
 
 export { doctorSignUp, doctorLogin, addSlots }

@@ -1,7 +1,7 @@
 import Patient from "../models/patientModel.js"
-import { userService,jwtService,compareService } from "../services/users.service.js"
+import { userService, jwtService, compareService } from "../services/users.service.js"
 import { parsedValidation, patientValidation } from "../services/validation.service.js"
-
+import Doctor from "../models/doctorModel.js"
 
 const patientSignUp = async (req, res) => {
     try {
@@ -34,7 +34,7 @@ const patientSignUp = async (req, res) => {
 //LOGIN FUNCTION
 const patientLogin = async (req, res) => {
     try {
-        const parsed = parsedValidation(patientValidation,req.body)
+        const parsed = parsedValidation(patientValidation, req.body)
         const user = await Patient.findOne({ email: parsed.email })
         if (!user)
             return res.status(404).json({ error: "User not found" })
@@ -44,7 +44,7 @@ const patientLogin = async (req, res) => {
         //GENERATE JWT TOKEN
         const token = await jwtService(user, process.env.PATIENT_SECRET_KEY, process.env.PATIENT_EXPIRE_DATE)
         //SEND A SUCCESS RESPONSE WITH TOKEN
-        res.status(201).json({ message: "loggedin successfully", token,appointments:user.appointments })
+        res.status(201).json({ message: "loggedin successfully", token, appointments: user.appointments })
     }
 
     catch (error) {
@@ -53,4 +53,17 @@ const patientLogin = async (req, res) => {
     }
 }
 
-export {patientSignUp,patientLogin}
+const getDoctorDetails = async (req, res) => {
+    try {
+        const doctors = await Doctor.find().select("id name gender specialization experience availability")
+        res.status(200).json({
+            message: "doctors details", doctors
+        })
+    }
+    catch (error) {
+        //HANDLE ERRORS AND SEND A RESPONSE WITH ERROR MESSAGE
+        res.status(400).json({ error: error.message })
+    }
+}
+
+export { patientSignUp, patientLogin, getDoctorDetails }
