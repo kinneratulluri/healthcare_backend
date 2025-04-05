@@ -1,62 +1,27 @@
-import { Mongoose } from "mongoose";
+import { mongoose } from "mongoose";
 import Doctor from "../models/doctorModel.js"
 import { userService, jwtService, compareService } from "../services/users.service.js"
-
-import { z } from "zod";
-import mongoose from "mongoose";
-//VALIDATION TO ENSURE PROPER DATA
-const doctorValidation = z.object(
-    {
-        name: z.string(),
-        email: z.string().email(),
-        password: z.string().min(8),
-        gender: z.enum(["male", "female", "other"]),
-        specialization: z.string(),
-        experience: z.number(),
-        contactNumber: z.string().length(10),
-        availability: z.array(z.object({
-            date: z.string(),
-            slots: z.array(z.object({
-                time: z.string(),
-                isBooked: z.boolean().optional().default(false)
-            }))
-        })).optional()
-    }
-)
-
-const availabilityValidation = z.object({
-    availability: z.array(z.object({
-        date: z.string(),
-        slots: z.array(z.object({
-            time: z.string(),
-            isBooked: z.boolean().optional().default(false)
-        }))
-    }))
-})
+import { parsedValidation ,doctorValidation,availabilityValidation} from "../services/validation.service.js";
 
 //SIGNUP FUNCTION
 const doctorSignUp = async (req, res) => {
     try {
-        const parsed = doctorValidation.safeParse(req.body)
-        console.log(parsed.error)
-        if (!parsed.success) {
-            throw new Error(JSON.stringify(parsed.error.format()))
-        }
-
+        //VALIDATE THE DATA AND FETCH
+        const parsed = parsedValidation(doctorValidation,req.body)
         const isEmail = await Doctor.findOne({ email: parsed.data.email })
         if (isEmail)
             return res.status(401).json({ message: "doctor already registered" })
         const hashedPassword = await userService(parsed.data.password)
         const newDoctor = await Doctor.create(
             {
-                name: parsed.data.name,
-                email: parsed.data.email,
+                name: parsed.name,
+                email: parsed.email,
                 password: hashedPassword,
-                gender: parsed.data.gender,
-                specialization: parsed.data.specialization,
-                experience: parsed.data.experience,
-                contactNumber: parsed.data.contactNumber,
-                availability: parsed.data.availability ? parsed.data.availability : []
+                gender: parsed.gender,
+                specialization: parsed.specialization,
+                experience: parsed.experience,
+                contactNumber: parsed.contactNumber,
+                availability: parsed.availability ? parsed.availability : []
             }
         );
 
@@ -73,12 +38,7 @@ const doctorSignUp = async (req, res) => {
 //LOGIN FUNCTION
 const doctorLogin = async (req, res) => {
     try {
-        const parsed = doctorValidation.safeParse(req.body)
-        console.log(parsed.error)
-        if (!parsed.success) {
-            throw new Error(JSON.stringify(parsed.error.format()))
-        }
-
+        const parsed = parsedValidation(doctorValidation,req.body)
         const user = await Doctor.findOne({ email: parsed.data.email })
         if (!user)
             return res.status(404).json({ error: "User not found" })
@@ -100,20 +60,17 @@ const addSlots = async (req, res) => {
     try {
         //EXTRACT ID FROM REQUEST
         const doctorid = req.doctor.id
-        const parsed = availabilityValidation.safeParse(req.body)
-        if (!parsed.success) {
-            throw new Error(JSON.stringify(parsed.error.format()));
-        } 
-        const incomingSlots = parsed.data.availability; // Extract validated availability data
-        //FIND DOCTOR BY ID
-        const doctor = await Doctor.findById(doctorid)
-        if (!doctor) {
-            return res.status(401).json({ message: "doctor not found" })
-        }
+        const parsed = parsedValidation(availabilityValidation,req.body)
+        const incomingSlots = parsed.availability; // Extract validated availability data
         if (!incomingSlots || !Array.isArray(incomingSlots) || incomingSlots.length === 0) {
             return res.status(400).json({
                 message: "provide available slots"
             })
+        }
+        //FIND DOCTOR BY ID
+        const doctor = await Doctor.findById(doctorid)
+        if (!doctor) {
+            return res.status(401).json({ message: "doctor not found" })
         }
         //FETCH CURRENT DATA INTO UPDATEDDATA
         const updatedAvailability = [...doctor.availability]
@@ -152,7 +109,7 @@ const addSlots = async (req, res) => {
 
 
         })
-       doctor.availability=updatedAvailability
+        doctor.availability = updatedAvailability
         await doctor.save()
         res.status(200).json({
             message: "slots added successfully",
