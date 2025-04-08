@@ -1,9 +1,8 @@
 import mongoose from "mongoose";
 import express from "express";
 import dotenv from "dotenv";
-import userRoutes from "./routes/user.route.js"
-import doctorRoutes from "./routes/doctor.route.js"
-import patientRoutes from "./routes/patient.route.js"
+import routes from "./routes/index.js"
+
 //LOAD VARIABLES FROM .env FILE INTO process.env
 dotenv.config();
 
@@ -14,11 +13,11 @@ const app= express()
 app.use(express.json())
  
 //ROUTES IN userRoutes ARE ACCESSIBLE AT /api/v1/user
-app.use("/api/v1/user",userRoutes)
+app.use("/api/v1",routes)
 
-app.use("/api/v1/doctor",doctorRoutes)
-
-app.use("/api/v1/patient",patientRoutes)
+app.use("/",(res,res)=>{
+    res.send("Welcome")
+})
 
 mongoose.connect(process.env.MONGO_URL)
 //HANDELS SUCESSFULL CONNECTION TO MONGODB
