@@ -36,6 +36,9 @@ const patientSchema= new mongoose.Schema({
             patientId:{
                 type:String
             },
+            patientEmail:{
+                type:String
+            },
             doctorName:{
                 type:String,
                 required:true
@@ -52,6 +55,11 @@ const patientSchema= new mongoose.Schema({
             },
             timeSlotId:{
                 type:String,required:true
+            },
+            status:{
+                type: String,
+                enum:['booked','cancelled','completed'],
+                required: true
             }
         }
     ]
