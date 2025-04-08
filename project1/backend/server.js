@@ -15,7 +15,7 @@ app.use(express.json())
 //ROUTES IN userRoutes ARE ACCESSIBLE AT /api/v1/user
 app.use("/api/v1",routes)
 
-app.use("/",(res,res)=>{
+app.use("/",(req,res)=>{
     res.send("Welcome")
 })
 
